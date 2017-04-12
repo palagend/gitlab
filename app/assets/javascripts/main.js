@@ -168,6 +168,20 @@ import './visibility_select';
 import './wikis';
 import './zen_mode';
 
+if (gon && gon.relative_url_root) {
+  // eslint-disable-next-line
+  __webpack_public_path__ = `${gon.relative_url_root}/foo`;
+}
+
+import('./async_test')
+  .then(module => new module.default()) // eslint-disable-line
+  .catch(err => console.error('could not load async thingie...', err));  // eslint-disable-line
+
+// import('moment')
+//   .then(moment => { console.log(moment); return moment().format('LLLL'); })
+//   .then(str => console.log(str))
+//   .catch(err => console.log('Failed to load moment', err));
+
 // eslint-disable-next-line global-require, import/no-commonjs
 if (process.env.NODE_ENV !== 'production') require('./test_utils/');
 
