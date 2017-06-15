@@ -109,7 +109,80 @@ if cache would be extracted regardless paths, and the paths are only used for st
 the problem we're seeing right now is, we accidentally used both cache and artifacts for node modules. i just realized that and removed all paths pointing to node modules. however other old branches or so might still be uploading caches for node modules, which could overwrite artifacts... is that true? do we restore artifacts first or cache first?
 if we always restore cache first, then artifacts, then it's probably fine
 
+
+
+set the cache globally and use something like key: "$CI_BUILD_REF_NAME". Since default cache doesn't cache in between different stages.
+
+the reason why it works the way it does is because the different steps might be executed on different machines. That is the beauty of Gitlab CI. This is why caching will need to be enabled "explicitly" for the folders/files you want to cache.
+
+Nobody expects the directory to get cleaned before each stage. Maybe just give us an option to skip the cleaning?
+the reason isn't that stages are being "cleaned" but that they are (potentially) executed on different runners.
+
+Create files in one stage, and pass those files to subsequent stages in a guaranteed manner.
+What we don't have is:
+1. clear documentation how to do this,
+1. efficient ways to use the same runner for subsequent jobs,
+1. elegantly declare that these files should be passed within the pipeline, but not stored beyond that, nor made downloadable.
+We have plans to solve (2) with sticky runner, and there's a good idea for (3) using the new artifact expiry, with a new declaration similar to "expire upon successful pipeline run".
+
+The defaults are very, very, very conservative, because they are conservative they are not the best in terms of speed. I would say that this opens part of bigger problem that we should solve is to actually start preparing a guidelines to figuoring out and optimising builds.
+
+One way or another for all possible solutions here, what I believe we need (even sooner that any other thing) is more detailed documentation for cache/artifacts maybe with common use-cases (many of them introduced in this issue).
+
+it is meant to be used to speed up invocations of subsequent runs of a given job, by keeping things like dependencies (e.g. npm packages, Go vendor packages, etc.) so they don't have to be re-fetched from the public internet.
+
+While I understand the cache can be abused to pass intermediate build results between stages, I'd rather use something that was designed for the purpose.
+
 ## Clearing the cache
+
+## Cache vs artifacts
+
+Should I use caching or artifacts? What fits best in my scenario?
+
+Let's don't mix the caching with passing artifacts between stages.
+
+Caching is not designed to pass artifacts between stages. You should never expect that you have the cache present. I will make the cache more configurable making it possible to cache between any jobs or any branch or anyway you want :) Cache is for runtime dependencies needed to compile the project: vendor/?
+
+Artifacts are designed to upload some compiled/generated bits of the build. We will soon introduce the option (on by default) that artifacts will be restored in builds for next stages.
+
+the artifacts could be fetched by any number of concurrent runners.
+
+Caching is to speed-up the setup of build dependencies. There is no guarantee that the cache will be there.
+
+That is what are the artifacts for - to pass data between builds. Of course they are exposed to be downloaded from UI, but since any job can run on different runners we need some central place to store them (you can later retry any build from web interface). The caching on the other hand allows you to speed up some operations on runner that you are using to run builds. The caching were never meant to be used to pass data between builds, since it doesn't make sense in this case.
+
+I believe cache and artifacts should also be described more-use-like in documentation. I mean add big description so people won't confuse artifacts as they are defined by biggest CI engines now (Jenkins, Travis) – where they ARE defined as final product that can be downloaded/deployed/sent to HockeyApp etc.
+
+I think it should be described as this:
+
+- cache – temporary storage for project dependencies. [They are not useful for anything else, not for keeping intermediate build results for sure. I also think cache:key is useless here. All dependency managers can handle multiple versions of deps.]
+- artifacts – stage results that will be passed between stages.
+
+They are not stored locally, and even it they would be - this would not work for subsequent builds executed on different runners on different hosts. The point of artifacts is to have a one central place for them (GitLab CE/EE). If you don't want to have artifacts added to build - you just don't configure them. There is nothing stored by default. And if you want artifacts for a build, but only to share with next builds in pipeline - use expires_in.
+
+there's also likely some confusion of build log that says it removes "build/" dir -- that is general checkout cleanup to remove untracked files. the cache or artifacts are unpacked after that step.
+
+## Shared cache between different Runners
+
+Use S3 like server for a shared cache dir
+
+for docker based runners, as each instance cache is just docker volume mounted as /cache. you could if you use some docker volume driver (think nfs) to share /cache between runners.
+
+ if you use concurrent runners your next stage could be
+executed on another instance causing a cache missing issue.
+
+
+## Disabling cache on specific jobs
+
+```yaml
+job:
+  cache: {}
+```
+
+## Availability of the cache
+
+using a single runner on a single machine. As such I don't have the issue where stage B might execute on a runner different from stage A, not guaranteeing the cache between stages. That will only work if the build goes from stage A to Z in the same runner/machine, otherwise, you might not have the cache available.
+
 
 ---
 
