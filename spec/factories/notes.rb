@@ -6,7 +6,7 @@ FactoryGirl.define do
   factory :note do
     project
     note { generate(:title) }
-    author
+    author { project.creator }
     on_issue
 
     factory :note_on_commit,             traits: [:on_commit]

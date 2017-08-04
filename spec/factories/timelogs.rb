@@ -3,7 +3,7 @@
 FactoryGirl.define do
   factory :timelog do
     time_spent 3600
-    user
     issue
+    user { issue.project.creator }
   end
 end

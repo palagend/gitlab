@@ -10,7 +10,7 @@ FactoryGirl.define do
     end
 
     after(:build) do |commit|
-      allow(commit).to receive(:author).and_return build(:author)
+      allow(commit).to receive(:author).and_return build_stubbed(:author)
     end
 
     trait :without_author do

@@ -1,12 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe AbuseReport do
-  subject     { create(:abuse_report) }
+  subject     { build_stubbed(:abuse_report) }
   let(:user)  { create(:admin) }
 
   it { expect(subject).to be_valid }
 
   describe 'associations' do
+    subject { create(:abuse_report) }
+
     it { is_expected.to belong_to(:reporter).class_name('User') }
     it { is_expected.to belong_to(:user) }
 
@@ -19,10 +21,12 @@ RSpec.describe AbuseReport do
     it { is_expected.to validate_presence_of(:reporter) }
     it { is_expected.to validate_presence_of(:user) }
     it { is_expected.to validate_presence_of(:message) }
-    it { is_expected.to validate_uniqueness_of(:user_id).with_message('has already been reported') }
+    it { expect(create(:abuse_report)).to validate_uniqueness_of(:user_id).with_message('has already been reported') }
   end
 
   describe '#remove_user' do
+    subject { create(:abuse_report) }
+
     it 'blocks the user' do
       expect { subject.remove_user(deleted_by: user) }.to change { subject.user.blocked? }.to(true)
     end

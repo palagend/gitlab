@@ -1,8 +1,8 @@
 FactoryGirl.define do
   factory :issue do
     title { generate(:title) }
-    author
     project
+    author { project.creator }
 
     trait :confidential do
       confidential true
