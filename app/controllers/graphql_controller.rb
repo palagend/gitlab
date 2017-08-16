@@ -3,14 +3,11 @@ class GraphqlController < ApplicationController
   skip_before_action :authenticate_user!
 
   def execute
-    puts current_user.inspect
-
     variables = ensure_hash(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
     context = {
-      # Query context goes here, for example:
-      # current_user: current_user,
+      current_user: current_user
     }
     result = GitlabSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
