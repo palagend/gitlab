@@ -1,5 +1,10 @@
 class GraphqlController < ApplicationController
+  # Unauthenticated users have access to the API for public data
+  skip_before_action :authenticate_user!
+
   def execute
+    puts current_user.inspect
+
     variables = ensure_hash(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
