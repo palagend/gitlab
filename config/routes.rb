@@ -66,6 +66,7 @@ Rails.application.routes.draw do
   get 'koding' => 'koding#index'
 
   draw :api
+  draw :graphql
   draw :sidekiq
   draw :help
   draw :snippets
