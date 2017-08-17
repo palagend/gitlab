@@ -76,20 +76,12 @@ Types::ProjectType = GraphQL::ObjectType.define do
   field :printing_merge_request_link_enabled, types.Boolean
 
   field :merge_requests, types[Types::MergeRequestType] do
-    argument :iid, types.ID
+    argument :iid, types[types.ID]
+    resolve Loaders::IidLoader.array_resolver(MergeRequest, :target_project_id, action: :read_merge_request)
+  end
 
-    resolve -> (project, args, ctx) do
-      if H.can?(ctx, :read_merge_request, project)
-        relation = project.merge_requests
-
-        if args.key?('iid')
-          relation.where(iid: args['iid'])
-        else
-          relation
-        end
-      else
-        MergeRequest.none
-      end
-    end
+  field :merge_request, Types::MergeRequestType do
+    argument :iid, !types.ID
+    resolve Loaders::IidLoader.new(MergeRequest, :target_project_id, action: :read_merge_request)
   end
 end
