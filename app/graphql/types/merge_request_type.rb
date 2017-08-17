@@ -29,51 +29,46 @@ Types::MergeRequestType = GraphQL::ObjectType.define do
   field :source_branch, types.String
   field :target_branch, types.String
 
-  field :work_in_progress, types.Boolean
+  field :work_in_progress, types.Boolean, property: :work_in_progress?
   field :merge_when_pipeline_succeeds, types.Boolean
 
-  field :merge_commit_sha, types.String # TODO(nick.thomas): types.SHA?
+  # TODO(nick.thomas): types.SHA?
+  field :sha, types.String, property: :diff_head_sha
+  field :merge_commit_sha, types.String
+
   field :user_notes_count, types.Int
-  field :should_remove_source_branch, types.Boolean
-  field :force_remove_source_branch, types.Boolean
+  field :should_remove_source_branch, types.Boolean, property: :should_remove_source_branch?
+  field :force_remove_source_branch, types.Boolean, property: :force_remove_source_branch?
 
   field :merge_status, types.String # TODO(nick.thomas): types.MergeStatus enum
 
-=begin
-  # TODO(nick.thomas)
-  expose :web_url do |merge_request, options|
-    Gitlab::UrlBuilder.build(merge_request)
+  field :web_url, types.String do
+    resolve -> (merge_request, args, ctx) { Gitlab::UrlBuilder.build(merge_request) }
   end
 
-  # TODO(nick.thomas): These look like caching?
-  expose :upvotes do |merge_request, options|
-    if options[:issuable_metadata]
-      options[:issuable_metadata][merge_request.id].upvotes
-    else
-      merge_request.upvotes
+  # TODO(nick.thomas): These two seemed to have some caching involved, like:
+  #
+  #   if options[:issuable_metadata]
+  #     options[:issuable_metadata][merge_request.id].upvotes
+  #    else
+  #      merge_request.upvotes
+  #    end
+  #
+  # Still necessary?
+  field :upvotes, types.Int
+  field :downvotes, types.Int
+
+  # TODO(nick.thomas): associations we don't support yet
+  # expose :author, :assignee, using: Entities::UserBasic
+  # expose :labels do |merge_request, options|
+  #   # Avoids an N+1 query since labels are preloaded
+  #   merge_request.labels.map(&:title).sort
+  # end
+  # expose :milestone, using: Entities::Milestone
+
+  field :subscribed, types.Boolean do
+    resolve -> (merge_request, args, ctx) do
+      merge_request.subscribed?(ctx['current_user'], merge_request.target_project)
     end
   end
-
-  expose :downvotes do |merge_request, options|
-    if options[:issuable_metadata]
-      options[:issuable_metadata][merge_request.id].downvotes
-    else
-      merge_request.downvotes
-    end
-  end
-
-  expose :author, :assignee, using: Entities::UserBasic
-  expose :labels do |merge_request, options|
-    # Avoids an N+1 query since labels are preloaded
-    merge_request.labels.map(&:title).sort
-  end
-
-  expose :milestone, using: Entities::Milestone
-
-  expose :subscribed do |merge_request, options|
-    merge_request.subscribed?(options[:current_user], options[:project])
-  end
-
-  expose :diff_head_sha, as: :sha
-=end
 end
