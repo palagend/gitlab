@@ -24,4 +24,15 @@ Types::QueryType = GraphQL::ObjectType.define do
 
     resolve Loaders::IidLoader[:merge_request]
   end
+
+  # Testing endpoint to validate the API with
+  field :echo, types.String do
+    argument :text, types.String
+
+    resolve -> (obj, args, ctx) do
+      username = ctx[:current_user]&.username
+
+      "#{username.inspect} says: #{args[:text]}"
+    end
+  end
 end
