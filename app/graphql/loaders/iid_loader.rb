@@ -1,12 +1,16 @@
 class Loaders::IidLoader < Loaders::BaseLoader
   class << self
-    def merge_request
-      proc do |obj, args, ctx|
-        Loaders::FullPathLoader.for(Project).load(args[:project]).then do |project|
-          iid = args[:iid]
-          self.for(project, :merge_requests).load(iid)
-        end
+    def merge_request(obj, args, ctx)
+      iid = args[:iid]
+      promise = Loaders::FullPathLoader.project_by_full_path(args[:project])
+
+      promise.then do |project|
+        merge_request_by_project_and_iid(project, iid)
       end
+    end
+
+    def merge_request_by_project_and_iid(project, iid)
+      self.for(project, :merge_requests).load(iid)
     end
   end
 

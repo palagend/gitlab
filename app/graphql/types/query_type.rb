@@ -12,6 +12,6 @@ Types::QueryType = GraphQL::ObjectType.define do
 
     authorize :read_merge_request
 
-    resolve Loaders::IidLoader.merge_request
+    resolve Loaders::IidLoader[:merge_request]
   end
 end

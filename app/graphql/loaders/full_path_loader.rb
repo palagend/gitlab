@@ -1,4 +1,14 @@
 class Loaders::FullPathLoader < Loaders::BaseLoader
+  class << self
+    def project(obj, args, ctx)
+      project_by_full_path(args[:full_path])
+    end
+
+    def project_by_full_path(full_path)
+      self.for(Project).load(full_path)
+    end
+  end
+
   attr_reader :model
 
   def initialize(model)
