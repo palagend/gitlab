@@ -77,13 +77,9 @@ Types::ProjectType = GraphQL::ObjectType.define do
   #   SharedGroup.represent(project.project_group_links.all, options)
   # end
 
-  field :merge_requests, types[Types::MergeRequestType] do
-    argument :iid, types[types.ID]
-    resolve Loaders::IidLoader.array_resolver(MergeRequest, :target_project_id, action: :read_merge_request)
-  end
-
-  field :merge_request, Types::MergeRequestType do
-    argument :iid, !types.ID
-    resolve Loaders::IidLoader.new(MergeRequest, :target_project_id, action: :read_merge_request)
-  end
+  # TODO(nick.thomas): Allow multiple MRs - perhaps using `MergeRequestFinder`?
+  # field :merge_requests, types[Types::MergeRequestType] do
+  #   argument :iid, types[types.ID]
+  #   resolve Loaders::IidLoader.array_resolver(MergeRequest, :target_project_id, action: :read_merge_request)
+  # end
 end
