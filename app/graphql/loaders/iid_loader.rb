@@ -18,7 +18,7 @@ class Loaders::IidLoader < Loaders::BaseLoader
   end
 
   def perform(keys)
-    relation = project.public_send(relation_name).where(:iid => keys)
+    relation = project.public_send(relation_name).where(iid: keys)
     fulfill_all(relation, keys) { |instance| instance.iid.to_s }
   end
 end
