@@ -46,18 +46,18 @@ Types::ProjectType = GraphQL::ObjectType.define do
 
   %i[issues merge_requests wiki snippets].each do |feature|
     field "#{feature}_enabled", types.Boolean do
-      resolve -> (project, args, ctx) { project.feature_available?(feature, ctx['current_user']) }
+      resolve ->(project, args, ctx) { project.feature_available?(feature, ctx[:current_user]) }
     end
   end
 
   field :jobs_enabled, types.Boolean do
-    resolve -> (project, args, ctx) { project.feature_available?(:builds, ctx['current_user']) }
+    resolve ->(project, args, ctx) { project.feature_available?(:builds, ctx[:current_user]) }
   end
 
   field :public_jobs, types.Boolean, property: :public_builds
 
   field :open_issues_count, types.Int do
-    resolve -> (project, args, ctx) { project.open_issues_count if project.feature_available?(:issues, ctx['current_user']) }
+    resolve ->(project, args, ctx) { project.open_issues_count if project.feature_available?(:issues, ctx[:current_user]) }
   end
 
   field :import_status, types.String

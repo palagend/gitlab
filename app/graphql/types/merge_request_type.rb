@@ -5,26 +5,20 @@ Types::MergeRequestType = GraphQL::ObjectType.define do
   field :iid, !types.ID
   field :title, types.String
   field :description, types.String
-  field :state, types.String # TODO(nick.thomas): this should be an enum
+  field :state, types.String
 
   field :created_at, Types::TimeType
   field :updated_at, Types::TimeType
 
-  # TODO(nick.thomas) check how loops are handled by graphql, e.g.:
-  #   {
-  #     project(path: 'foo/bar') {
-  #       merge_requests(iid: 1) {
-  #         project ...
-  #       }
-  #     }
-  #  }
-  # project is identical to target_project
-  # field :source_project, -> { types.Project }
-  # field :target_project, -> { types.Project }
-  # field :project, -> { types.Project }
+  field :source_project, -> { Types::ProjectType }
+  field :target_project, -> { Types::ProjectType }
+
+  # Alias for target_project
+  field :project, -> { Types::ProjectType }
 
   field :source_project_id, types.Int
   field :target_project_id, types.Int
+  field :project_id, types.Int
 
   field :source_branch, types.String
   field :target_branch, types.String
@@ -32,7 +26,6 @@ Types::MergeRequestType = GraphQL::ObjectType.define do
   field :work_in_progress, types.Boolean, property: :work_in_progress?
   field :merge_when_pipeline_succeeds, types.Boolean
 
-  # TODO(nick.thomas): types.SHA?
   field :sha, types.String, property: :diff_head_sha
   field :merge_commit_sha, types.String
 
@@ -40,10 +33,10 @@ Types::MergeRequestType = GraphQL::ObjectType.define do
   field :should_remove_source_branch, types.Boolean, property: :should_remove_source_branch?
   field :force_remove_source_branch, types.Boolean, property: :force_remove_source_branch?
 
-  field :merge_status, types.String # TODO(nick.thomas): types.MergeStatus enum
+  field :merge_status, types.String
 
   field :web_url, types.String do
-    resolve -> (merge_request, args, ctx) { Gitlab::UrlBuilder.build(merge_request) }
+    resolve ->(merge_request, args, ctx) { Gitlab::UrlBuilder.build(merge_request) }
   end
 
   # TODO(nick.thomas): These two seemed to have some caching involved, like:
@@ -67,8 +60,8 @@ Types::MergeRequestType = GraphQL::ObjectType.define do
   # expose :milestone, using: Entities::Milestone
 
   field :subscribed, types.Boolean do
-    resolve -> (merge_request, args, ctx) do
-      merge_request.subscribed?(ctx['current_user'], merge_request.target_project)
+    resolve ->(merge_request, args, ctx) do
+      merge_request.subscribed?(ctx[:current_user], merge_request.target_project)
     end
   end
 end
