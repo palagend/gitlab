@@ -5,24 +5,30 @@ class Loaders::IidLoader < Loaders::BaseLoader
       promise = Loaders::FullPathLoader.project_by_full_path(args[:project])
 
       promise.then do |project|
-        merge_request_by_project_and_iid(project, iid)
+        if project
+          merge_request_by_project_and_iid(project.id, iid)
+        else
+          nil
+        end
       end
     end
 
-    def merge_request_by_project_and_iid(project, iid)
-      self.for(project, :merge_requests).load(iid)
+    def merge_request_by_project_and_iid(project_id, iid)
+      self.for(MergeRequest, target_project_id: project_id.to_s).load(iid.to_s)
     end
   end
 
-  attr_reader :project, :relation_name
+  attr_reader :model, :restrictions
 
-  def initialize(project, relation_name)
-    @project = project
-    @relation_name = relation_name
+  def initialize(model, restrictions = {})
+    @model = model
+    @restrictions = restrictions
   end
 
   def perform(keys)
-    relation = project.public_send(relation_name).where(iid: keys) # rubocop:disable GitlabSecurity/PublicSend
+    relation = model.where(iid: keys)
+    relation = relation.where(restrictions) if restrictions.present?
+
     fulfill_all(relation, keys) { |instance| instance.iid.to_s }
   end
 end
