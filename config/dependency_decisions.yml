@@ -516,3 +516,9 @@
     :why: zlib license + Development Lib + https://github.com/uNetworking/uWebSockets/blob/master/LICENSE
     :versions: []
     :when: 2018-01-17 23:46:12.367554000 Z
+  - promise.rb
+  - Unlicense
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-09-05 13:10:22.752422892 Z
