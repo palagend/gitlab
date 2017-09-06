@@ -14,6 +14,8 @@ constraints(GroupUrlConstrainer.new) do
       get :merge_requests, as: :merge_requests_group
       get :projects, as: :projects_group
       get :activity, as: :activity_group
+      put :transfer, as: :transfer_group
+      put :convert_to_root, as: :convert_to_root_group
     end
 
     get '/', action: :show, as: :group_canonical
@@ -75,3 +77,4 @@ constraints(GroupUrlConstrainer.new) do
                                           :activity)
   end
 end
+

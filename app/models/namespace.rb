@@ -53,7 +53,7 @@ class Namespace < ActiveRecord::Base
 
   # Legacy Storage specific hooks
 
-  after_update :move_dir, if: :path_changed?
+  after_update :move_dir, if: :path_or_parent_changed?
   before_destroy(prepend: true) { prepare_for_destroy }
   after_destroy :rm_dir
 
@@ -223,6 +223,10 @@ class Namespace < ActiveRecord::Base
   end
 
   private
+
+  def path_or_parent_changed?
+    path_changed? || parent_changed?
+  end
 
   def refresh_access_of_projects_invited_groups
     Group

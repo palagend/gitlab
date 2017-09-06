@@ -472,4 +472,136 @@ describe GroupsController do
       "Group '#{redirect_route.path}' was moved to '#{group.full_path}'. Please update any links and bookmarks that may still have the old path."
     end
   end
+
+  describe "PUT transfer" do
+    let(:new_parent_group) { create(:group, :public) }
+
+    before do
+      sign_in(user)
+    end
+
+    context "When the current user has valid policies" do
+      before do
+        create(:group_member, :owner, group: new_parent_group, user: user)
+
+        put :transfer,
+          id: group.path,
+          new_parent_group_id: new_parent_group.id,
+          format: :js
+
+        group.reload
+      end
+
+      it "should be success" do
+        expect(response).to be_success
+      end
+
+      it "should update the parent for the group" do
+        expect(group.parent).to eq(new_parent_group)
+      end
+    end
+
+    context "When the current user has no valid policies" do
+      let(:previous_parent) { create(:group, :public) }
+
+      before do
+        create(:group_member, :guest, group: new_parent_group, user: user)
+        group.update_attribute(:parent_id, previous_parent.id)
+
+        put :transfer,
+          id: group.path,
+          new_parent_group_id: new_parent_group.id,
+          format: :js
+
+        group.reload
+      end
+
+      it "should not update the parent for the group" do
+        expect(group.parent).not_to be_nil
+        expect(group.parent).to eq(previous_parent)
+      end
+
+      it "should be success" do
+        expect(response).to be_success
+      end
+
+      it "should return an alert" do
+        expect(flash[:alert]).to eq "Transfer failed: You don't have enough permissions."
+      end
+    end
+
+    context "When parent_group is empty" do
+      let(:previous_parent) { create(:group, :public) }
+
+      before do
+        group.update_attribute(:parent_id, previous_parent.id)
+
+        put :transfer,
+          id: group.path,
+          new_parent_group_id: nil,
+          format: :js
+
+        group.reload
+      end
+
+      it "should not update the namespace for the group" do
+        expect(group.parent).not_to be_nil
+        expect(group.parent).to eq(previous_parent)
+      end
+
+      it "should be success" do
+        expect(response).to be_success
+      end
+
+      it "should return an alert" do
+        expect(flash[:alert]).to eq "Transfer failed: Please select a new parent for your group."
+      end
+    end
+  end
+
+  describe "PUT convert_to_root" do
+    before do
+      sign_in(user)
+    end
+
+    context "When the user has no valid policies" do
+      let!(:group_member) { create(:group_member, :guest, group: group, user: user) }
+
+      before do
+        put :convert_to_root,
+          id: group.path,
+          format: :js
+      end
+
+      it "should not be success" do
+        expect(response).not_to be_success
+      end
+
+      it "should render access denied" do
+        expect(response).to render_template("errors/access_denied")
+      end
+    end
+
+    context "When the user has valid policies" do
+      before do
+        put :convert_to_root,
+          id: group.path,
+          format: :js
+
+        group.reload
+      end
+
+      it "should be success" do
+        expect(response).to be_success
+      end
+
+      it "should update group attributes" do
+        expect(group.parent).to be_nil
+      end
+
+      it "should convert group to root group" do
+        expect(group.full_path).to eq(group.name)
+      end
+    end
+  end
 end

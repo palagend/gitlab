@@ -302,6 +302,10 @@ class Group < Namespace
     false
   end
 
+  def has_parent?
+    !parent_id.nil?
+  end
+
   private
 
   def update_two_factor_requirement

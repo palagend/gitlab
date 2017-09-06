@@ -14,6 +14,9 @@ module Storage
         # Ensure old directory exists before moving it
         gitlab_shell.add_namespace(repository_storage_path, full_path_was)
 
+        # Ensure new directory exists before moving it (if there's a parent)
+        gitlab_shell.add_namespace(repository_storage_path, parent.full_path) if parent
+
         unless gitlab_shell.mv_namespace(repository_storage_path, full_path_was, full_path)
           Rails.logger.error "Exception moving path #{repository_storage_path} from #{full_path_was} to #{full_path}"
 
@@ -96,11 +99,26 @@ module Storage
     end
 
     def full_path_was
-      if parent
-        parent.full_path + '/' + path_was
+      if parent_id_was
+        path_from_previous_parent
+      elsif parent
+        path_from_current_parent
       else
         path_was
       end
+    end
+
+    def path_from_previous_parent
+      previous_parent = Group.find_by(id: parent_id_was)
+      if previous_parent.present?
+        previous_parent.full_path + '/' + path_was
+      else
+        raise Gitlab::UpdatePathError.new('Previous parent was deleted')
+      end
+    end
+
+    def path_from_current_parent
+      parent.full_path + '/' + path_was
     end
   end
 end

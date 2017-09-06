@@ -88,6 +88,19 @@ module GroupsHelper
     end
   end
 
+  def parent_group_options
+    groups = current_user.owned_groups
+    options_for_select(groups.map { |group| [group.full_path, group.id] })
+  end
+
+  def supports_nested_groups?
+    Group.supports_nested_groups?
+  end
+
+  def group_can_become_root?(group)
+    group.has_parent? && can?(current_user, :create_group)
+  end
+
   private
 
   def group_title_link(group, hidable: false, show_avatar: false, for_dropdown: false)
