@@ -115,28 +115,30 @@ module API
     mount ::API::Events
     mount ::API::Features
     mount ::API::Files
+    mount ::API::GroupMilestones
     mount ::API::Groups
+    mount ::API::GroupVariables
     mount ::API::Internal
     mount ::API::Issues
-    mount ::API::Jobs
     mount ::API::JobArtifacts
+    mount ::API::Jobs
     mount ::API::Keys
     mount ::API::Labels
     mount ::API::Lint
     mount ::API::Members
     mount ::API::MergeRequestDiffs
     mount ::API::MergeRequests
-    mount ::API::ProjectMilestones
-    mount ::API::GroupMilestones
     mount ::API::Namespaces
     mount ::API::Notes
     mount ::API::NotificationSettings
     mount ::API::Pipelines
     mount ::API::PipelineSchedules
     mount ::API::ProjectHooks
+    mount ::API::ProjectMilestones
     mount ::API::Projects
     mount ::API::ProjectSnippets
     mount ::API::ProtectedBranches
+    mount ::API::ProtectedTags
     mount ::API::Repositories
     mount ::API::Runner
     mount ::API::Runners
@@ -153,7 +155,6 @@ module API
     mount ::API::Triggers
     mount ::API::Users
     mount ::API::Variables
-    mount ::API::GroupVariables
     mount ::API::Version
     mount ::API::Wikis
 
