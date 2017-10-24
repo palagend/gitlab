@@ -238,7 +238,11 @@ module API
       expose :last_pipeline, using: 'API::Entities::PipelineBasic'
     end
 
-    class Branch < Grape::Entity
+    class BasicRef < Grape::Entity
+      expose :name
+    end
+
+    class Branch < BasicRef
       expose :name
 
       expose :commit, using: Entities::Commit do |repo_branch, options|
@@ -774,8 +778,8 @@ module API
       expose :description
     end
 
-    class Tag < Grape::Entity
-      expose :name, :message
+    class Tag < BasicRef
+      expose :message
 
       expose :commit, using: Entities::Commit do |repo_tag, options|
         options[:project].repository.commit(repo_tag.dereferenced_target)
