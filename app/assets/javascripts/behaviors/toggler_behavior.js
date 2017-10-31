@@ -30,6 +30,28 @@ $(() => {
     }
   });
 
+  $('body').on('click', '.js-toggle-lazy-diff', (e) => {
+    e.target.classList.remove('js-toggle-lazy-diff');
+    const contentEl = $(e.target).closest('.js-toggle-container').find('.js-toggle-content');
+    const tableEl = contentEl.find('tbody');
+    if (tableEl.length === 0) return;
+
+    let fileHolder = contentEl.find('.file-holder');
+    const url = fileHolder.data('linesPath');
+
+    $.ajax({
+      url,
+      dataType: 'JSON',
+    })
+    .done(({ discussion_html }) => {
+      const lines = $(discussion_html).find('.line_holder');
+      contentEl.find('tbody').prepend(lines);
+      contentEl.find('.line-holder-placeholder').remove();
+      fileHolder = contentEl.find('.file-holder');
+      fileHolder.syntaxHighlight();
+    });
+  });
+
   // If we're accessing a permalink, ensure it is not inside a
   // closed js-toggle-container!
   const hash = window.gl.utils.getLocationHash();
