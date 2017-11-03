@@ -6,6 +6,8 @@
 //   %div.js-toggle-content
 //
 
+import Flash from '~/flash';
+
 $(() => {
   function toggleContainer(container, toggleState) {
     const $container = $(container);
@@ -45,10 +47,14 @@ $(() => {
     })
     .done(({ discussion_html }) => {
       const lines = $(discussion_html).find('.line_holder');
+      lines.addClass('fade-in');
       contentEl.find('tbody').prepend(lines);
       contentEl.find('.line-holder-placeholder').remove();
       fileHolder = contentEl.find('.file-holder');
       fileHolder.syntaxHighlight();
+    })
+    .fail(() => {
+      Flash('Unable to fetch diff. Try refreshing the page');
     });
   });
 

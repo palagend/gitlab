@@ -5,7 +5,9 @@ feature 'toggler_behavior', :js do
   let(:project) { create(:project, :repository) }
   let(:merge_request) { create(:merge_request, source_project: project, author: user) }
   let(:note) { create(:diff_note_on_merge_request, noteable: merge_request, project: project) }
+  let(:resolved_note) { create(:diff_note_on_merge_request, :resolved, noteable: merge_request, project: project) }
   let(:fragment_id) { "#note_#{note.id}" }
+  let(:resolved_fragment_id) { "#note_#{note.id}" }
 
   before do
     sign_in(create(:admin))
@@ -23,6 +25,20 @@ feature 'toggler_behavior', :js do
       expect(find(fragment_id).visible?).to eq true
       expect(fragment_position_top).to be >= page_scroll_y
       expect(fragment_position_top).to be < (page_scroll_y + page_height)
+    end
+  end
+
+  describe 'toggle collapsed discussions' do
+    it 'loads diff when toggling hidden discussion' do
+      page.within("[data-discussion-id='#{resolved_note.id}']") do
+        expect(page).not_to have_content(resolved_note.note)
+
+        click_button "Toggle discussion"
+
+        expect(page).to have_selector('.line-holder-placeholder', visible: true)
+      end
+
+      expect(page).to have_content(resolved_note.note)
     end
   end
 end

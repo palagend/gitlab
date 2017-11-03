@@ -5,7 +5,7 @@
 - diff_data = {}
 - expanded = discussion.expanded? || local_assigns.fetch(:expanded, nil)
 - unless expanded
-  - diff_data = { lines_path: project_merge_request_discussion_path(discussion.project, @merge_request, discussion) }
+  - diff_data = { lines_path: project_merge_request_discussion_path(discussion.project, discussion.noteable, discussion) }
 
 .diff-file.file-holder{ class: diff_file_class, data: diff_data }
   .js-file-title.file-title.file-title-flex-parent
