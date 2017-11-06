@@ -30,7 +30,7 @@ feature 'toggler_behavior', :js do
 
   describe 'toggle collapsed discussions' do
     it 'loads diff when toggling hidden discussion' do
-      page.within("[data-discussion-id='#{resolved_note.id}']") do
+      page.within("[data-discussion-id='#{resolved_note.discussion_id}']") do
         expect(page).not_to have_content(resolved_note.note)
 
         click_button "Toggle discussion"
