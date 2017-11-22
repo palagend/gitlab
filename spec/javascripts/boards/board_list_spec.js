@@ -6,7 +6,6 @@
 /* global mockBoardService */
 import Vue from 'vue';
 import _ from 'underscore';
-import Sortable from 'vendor/Sortable';
 import BoardList from '~/boards/components/board_list';
 import eventHub from '~/boards/eventhub';
 import '~/boards/mixins/sortable_default_options';
@@ -14,8 +13,6 @@ import '~/boards/models/issue';
 import '~/boards/models/list';
 import '~/boards/stores/boards_store';
 import './mock_data';
-
-window.Sortable = Sortable;
 
 describe('Board list component', () => {
   let component;
