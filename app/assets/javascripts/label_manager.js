@@ -1,6 +1,5 @@
 /* eslint-disable comma-dangle, class-methods-use-this, no-underscore-dangle, no-param-reassign, no-unused-vars, consistent-return, func-names, space-before-function-paren, max-len */
-/* global Sortable */
-
+import Sortable from 'sortablejs';
 import Flash from './flash';
 
 export default class LabelManager {

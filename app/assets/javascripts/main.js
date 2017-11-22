@@ -6,7 +6,6 @@ import jQuery from 'jquery';
 import _ from 'underscore';
 import Cookies from 'js-cookie';
 import Dropzone from 'dropzone';
-import Sortable from 'vendor/Sortable';
 import svg4everybody from 'svg4everybody';
 
 // libraries with import side-effects
@@ -18,7 +17,6 @@ window.jQuery = jQuery;
 window.$ = jQuery;
 window._ = _;
 window.Dropzone = Dropzone;
-window.Sortable = Sortable;
 
 // templates
 import './templates/issuable_template_selector';

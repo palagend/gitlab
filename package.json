@@ -57,6 +57,7 @@
     "raw-loader": "^0.5.1",
     "react-dev-utils": "^0.5.2",
     "select2": "3.5.2-browserify",
+    "sortablejs": "^1.7.0",
     "sql.js": "^0.4.0",
     "svg4everybody": "2.1.9",
     "three": "^0.84.0",
