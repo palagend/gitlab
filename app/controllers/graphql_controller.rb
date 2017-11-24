@@ -2,6 +2,8 @@ class GraphqlController < ApplicationController
   # Unauthenticated users have access to the API for public data
   skip_before_action :authenticate_user!
 
+  before_action :check_graphql_feature_flag!
+
   def execute
     variables = ensure_hash(params[:variables])
     query = params[:query]
@@ -14,6 +16,10 @@ class GraphqlController < ApplicationController
   end
 
   private
+
+  def check_graphql_feature_flag!
+    render_404 unless Feature.enabled?(:graphql)
+  end
 
   # Handle form data, JSON body, or a blank value
   def ensure_hash(ambiguous_param)

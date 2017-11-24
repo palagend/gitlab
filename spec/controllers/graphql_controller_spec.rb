@@ -10,6 +10,20 @@ describe GraphqlController do
 
     subject { query_response }
 
+    context 'graphql is disabled by feature flag' do
+      let(:user) { nil }
+
+      before do
+        stub_feature_flags(graphql: false)
+      end
+
+      it 'returns 404' do
+        run_test_query!
+
+        expect(response).to have_gitlab_http_status(404)
+      end
+    end
+
     context 'signed out' do
       let(:user) { nil }
 
