@@ -6,6 +6,7 @@ class Loaders::BaseLoader < GraphQL::Batch::Loader
     def [](sym)
       resolver = method(sym)
       raise ArgumentError.new("#{self}.#{sym} is not a resolver") unless resolver.arity == 3
+
       resolver
     end
   end
