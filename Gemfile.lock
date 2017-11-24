@@ -1085,6 +1085,7 @@ DEPENDENCIES
   grape_logging (~> 1.7)
   graphiql-rails (~> 1.4.4)
   graphql (~> 1.6.7)
+  graphql-batch (~> 0.3.4)
   graphql-preload (~> 1.0.3)
   haml_lint (~> 0.26.0)
   hamlit (~> 2.6.1)
