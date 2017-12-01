@@ -4,7 +4,7 @@ describe FileUploader do
   let(:uploader) { described_class.new(build_stubbed(:project)) }
 
   context 'legacy storage' do
-    let(:project) { build_stubbed(:project) }
+    let(:project) { build_stubbed(:project, :legacy_storage) }
 
     describe '.absolute_path' do
       it 'returns the correct absolute path by building it dynamically' do
@@ -29,7 +29,7 @@ describe FileUploader do
 
   context 'hashed storage' do
     context 'when rolled out attachments' do
-      let(:project) { build_stubbed(:project, :hashed) }
+      let(:project) { build_stubbed(:project) }
 
       describe '.absolute_path' do
         it 'returns the correct absolute path by building it dynamically' do

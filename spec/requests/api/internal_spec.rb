@@ -382,6 +382,8 @@ describe API::Internal do
         end
 
         context 'project as /namespace/project' do
+          let(:project) { create(:project, :repository, :legacy_storage) }
+
           it do
             pull(key, project_with_repo_path('/' + project.full_path))
 
@@ -584,6 +586,7 @@ describe API::Internal do
     end
 
     context 'the project path was changed' do
+      let(:project) { create(:project, :repository, :legacy_storage) }
       let!(:old_path_to_repo) { project.repository.path_to_repo }
       let!(:repository) { project.repository }
 
@@ -860,6 +863,17 @@ describe API::Internal do
     end
   end
 
+  def gl_repository_for(project_or_wiki)
+    case project_or_wiki
+    when ProjectWiki
+      project_or_wiki.project.gl_repository(is_wiki: true)
+    when Project
+      project_or_wiki.gl_repository(is_wiki: false)
+    else
+      nil
+    end
+  end
+
   def project_with_repo_path(path)
     double().tap do |fake_project|
       allow(fake_project).to receive_message_chain('repository.path_to_repo' => path)
@@ -871,17 +885,7 @@ describe API::Internal do
       api("/internal/allowed"),
       key_id: key.id,
       project: project.repository.path_to_repo,
-      action: 'git-upload-pack',
-      secret_token: secret_token,
-      protocol: protocol
-    )
-  end
-
-  def pull_with_path(key, path_to_repo, protocol = 'ssh')
-    post(
-      api("/internal/allowed"),
-      key_id: key.id,
-      project: path_to_repo,
+      gl_repository: gl_repository_for(project),
       action: 'git-upload-pack',
       secret_token: secret_token,
       protocol: protocol
@@ -894,19 +898,7 @@ describe API::Internal do
       changes: 'd14d6c0abdd253381df51a723d58691b2ee1ab08 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/master',
       key_id: key.id,
       project: project.repository.path_to_repo,
-      action: 'git-receive-pack',
-      secret_token: secret_token,
-      protocol: protocol,
-      env: env
-    )
-  end
-
-  def push_with_path(key, path_to_repo, protocol = 'ssh', env: nil)
-    post(
-      api("/internal/allowed"),
-      changes: 'd14d6c0abdd253381df51a723d58691b2ee1ab08 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/master',
-      key_id: key.id,
-      project: path_to_repo,
+      gl_repository: gl_repository_for(project),
       action: 'git-receive-pack',
       secret_token: secret_token,
       protocol: protocol,
@@ -920,6 +912,7 @@ describe API::Internal do
       ref: 'master',
       key_id: key.id,
       project: project.repository.path_to_repo,
+      gl_repository: gl_repository_for(project),
       action: 'git-upload-archive',
       secret_token: secret_token,
       protocol: 'ssh'
