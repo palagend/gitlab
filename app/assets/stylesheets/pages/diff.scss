@@ -54,6 +54,7 @@
       table-layout: fixed;
 
       .diff-line-num {
+        position: relative;
         width: 50px;
 
         a {
@@ -97,7 +98,7 @@
       }
 
       .add-diff-note {
-        margin-left: -55px;
+        right: 40px;
       }
     }
 
