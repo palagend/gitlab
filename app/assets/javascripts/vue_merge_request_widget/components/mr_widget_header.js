@@ -29,6 +29,9 @@ export default {
         gfm: `\`${this.mr.sourceBranch}\``,
       });
     },
+    ideMergeRequestHref() {
+      return `/-/ide/project${this.mr.statusPath.replace('.json', '')}`;
+    },
   },
   methods: {
     isBranchTitleLong(branchTitle) {
@@ -73,6 +76,11 @@ export default {
         </span>
       </div>
       <div v-if="mr.isOpen">
+        <a
+          :href="ideMergeRequestHref"
+          class="btn btn-sm inline">
+          Web IDE
+        </a>
         <a
           href="#modal_merge_info"
           data-toggle="modal"
