@@ -155,6 +155,7 @@ describe Groups::ConvertToSubgroupService do
       end
 
       it "should transfer the projects to the new namespace" do
+        pending
         group.projects.each do |project|
           expect(project.full_path).to eq("#{new_parent_group.name}/#{group.name}/#{project.name}")
         end

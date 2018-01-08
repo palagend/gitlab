@@ -77,4 +77,3 @@ constraints(GroupUrlConstrainer.new) do
                                           :activity)
   end
 end
-

@@ -40,7 +40,9 @@ module Groups
 
     def update_visibility(visibility_level)
       @group.projects.update_all(visibility_level: visibility_level)
-      @group.self_and_descendants.update_all(visibility_level: visibility_level)
+      @group.self_and_descendants.each do |subgroup|
+        subgroup.update_attribute(:visibility_level, visibility_level)
+      end
       @group.all_projects.update_all(visibility_level: visibility_level)
     end
 
