@@ -671,6 +671,10 @@ module API
         namespace.users_with_descendants.count
       end
 
+      expose :user_id, if: -> (namespace, opts) { namespace.kind == 'user' && namespace.owner != nil} do |namespace, _|
+        namespace.owner.id
+      end
+
       def expose_members_count_with_descendants?(namespace, opts)
         namespace.kind == 'group' && Ability.allowed?(opts[:current_user], :admin_group, namespace)
       end

@@ -32,6 +32,7 @@ Example response:
     "path": "user1",
     "kind": "user",
     "full_path": "user1"
+    "user_id": 3,
   },
   {
     "id": 2,

@@ -26,7 +26,7 @@ describe API::Namespaces do
         expect(group_kind_json_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path',
                                                                  'parent_id', 'members_count_with_descendants')
 
-        expect(user_kind_json_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path', 'parent_id')
+        expect(user_kind_json_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path', 'parent_id', 'user_id')
       end
 
       it "admin: returns an array of all namespaces" do
@@ -105,6 +105,10 @@ describe API::Namespaces do
         expect(json_response['id']).to eq(requested_namespace.id)
         expect(json_response['path']).to eq(requested_namespace.path)
         expect(json_response['name']).to eq(requested_namespace.name)
+
+        if namespace_kind == :user
+          expect(json_response['user_id']).to eq(requested_namespace_owner.id)
+        end
       end
     end
 
@@ -119,6 +123,7 @@ describe API::Namespaces do
         context 'when requested by ID' do
           context 'when requesting group' do
             let(:namespace_id) { owned_group.id }
+            let(:namespace_kind) { :group }
 
             it_behaves_like 'can access namespace'
           end
@@ -126,6 +131,8 @@ describe API::Namespaces do
           context 'when requesting personal namespace' do
             let(:namespace_id) { request_actor.namespace.id }
             let(:requested_namespace) { request_actor.namespace }
+            let(:namespace_kind) { :user }
+            let(:requested_namespace_owner) { request_actor }
 
             it_behaves_like 'can access namespace'
           end
@@ -134,6 +141,7 @@ describe API::Namespaces do
         context 'when requested by path' do
           context 'when requesting group' do
             let(:namespace_id) { owned_group.path }
+            let(:namespace_kind) { :group }
 
             it_behaves_like 'can access namespace'
           end
@@ -141,6 +149,8 @@ describe API::Namespaces do
           context 'when requesting personal namespace' do
             let(:namespace_id) { request_actor.namespace.path }
             let(:requested_namespace) { request_actor.namespace }
+            let(:namespace_kind) { :user }
+            let(:requested_namespace_owner) { request_actor }
 
             it_behaves_like 'can access namespace'
           end
@@ -197,6 +207,7 @@ describe API::Namespaces do
         context 'when requesting group' do
           let(:namespace_id) { group2.id }
           let(:requested_namespace) { group2 }
+          let(:namespace_kind) { :group }
 
           it_behaves_like 'can access namespace'
         end
@@ -204,6 +215,8 @@ describe API::Namespaces do
         context 'when requesting personal namespace' do
           let(:namespace_id) { user2.namespace.id }
           let(:requested_namespace) { user2.namespace }
+          let(:namespace_kind) { :user }
+          let(:requested_namespace_owner) { user2 }
 
           it_behaves_like 'can access namespace'
         end
