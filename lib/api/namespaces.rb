@@ -29,6 +29,17 @@ module API
       get ':id' do
         present user_namespace, with: Entities::Namespace, current_user: current_user
       end
+
+      desc "Get namespace's projects" do
+        success Entities::BasicProjectDetails
+      end
+      params do
+        requires :id, type: String, desc: "Namespace's ID or path"
+        use :pagination
+      end
+      get ':id/projects' do
+        present paginate(user_namespace.projects), with: Entities::BasicProjectDetails, current_user: current_user
+      end
     end
   end
 end
