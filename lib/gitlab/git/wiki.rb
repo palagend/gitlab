@@ -48,7 +48,7 @@ module Gitlab
       end
 
       def update_page(page_path, title, format, content, commit_details)
-        @repository.gitaly_migrate(:wiki_update_page) do |is_enabled|
+        @repository.gitaly_migrate(:wiki_update_page, status: Gitlab::GitalyClient::MigrationStatus::DISABLED) do |is_enabled|
           if is_enabled
             gitaly_update_page(page_path, title, format, content, commit_details)
             gollum_wiki.clear_cache
@@ -196,7 +196,15 @@ module Gitlab
         assert_type!(format, Symbol)
         assert_type!(commit_details, CommitDetails)
 
-        gollum_wiki.update_page(gollum_page_by_path(page_path), title, format, content, commit_details.to_h)
+        page = gollum_page_by_path(page_path)
+        committer = Gollum::Committer.new(page.wiki, commit_details.to_h)
+
+        # Instead of performing two renames if the title has changed,
+        # the update_page will only update the format and content and
+        # the rename_page will do anything related to moving/renaming
+        gollum_wiki.update_page(page, page.name, format, content, committer: committer)
+        gollum_wiki.rename_page(page, title, committer: committer)
+        committer.commit
         nil
       end
 
