@@ -188,6 +188,26 @@
                 = link_to project_clusters_path(@project), title: 'Cluster', class: 'shortcuts-cluster' do
                   %span
                     Clusters
+                  .feature-highlight.js-feature-highlight{ disabled: true,
+                    data: { trigger: 'manual',
+                      container: 'body',
+                      toggle: 'popover',
+                      placement: 'right',
+                      highlight: 'clusters' } }
+                .feature-highlight-popover-content
+                  Some SVG illustration
+                  .feature-highlight-popover-sub-content
+                    %span= _('Use')
+                    = link_to 'Issue Boards', project_boards_path(@project)
+                    %span= _('to create customized software development workflows like')
+                    %strong= _('Scrum')
+                    %span= _('or')
+                    %strong= _('Kanban')
+                    %hr
+                    %button.btn-link.dismiss-feature-highlight{ type: 'button' }
+                      %span= _("Got it! Don't show this again")
+                      = custom_icon('thumbs_up')
+
 
             - if @project.feature_available?(:builds, current_user) && !@project.empty_repo?
               = nav_link(path: 'pipelines#charts') do
