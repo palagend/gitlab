@@ -106,7 +106,7 @@ module Gollum
     end
 
     def raw_data_in_commiter(committer, dir, filename)
-      committer.tree.dig(dir, filename)
+      committer.tree.dig(*dir.split(::File::SEPARATOR), filename)
     end
   end
 

@@ -114,6 +114,8 @@ class Projects::WikisController < Projects::ApplicationController
   end
 
   def wiki_params
-    params.require(:wiki).permit(:title, :content, :format, :message, :last_commit_sha)
+    params.require(:wiki).tap do |p|
+      p[:title] = File.join([p[:directory].presence, p[:title]].compact)
+    end.permit(:title, :content, :format, :message, :last_commit_sha)
   end
 end
