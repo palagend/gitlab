@@ -442,6 +442,7 @@ import SearchAutocomplete from './search_autocomplete';
           import('./pages/projects/labels/index')
             .then(callDefault)
             .catch(fail);
+          import('./pages/labels/').then(callDefault).catch(fail);
           break;
         case 'projects:network:show':
           // Ensure we don't create a particular shortcut handler here. This is

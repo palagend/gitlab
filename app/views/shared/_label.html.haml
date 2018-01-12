@@ -84,6 +84,12 @@
       = link_to edit_label_path(label), title: "Edit", class: 'btn btn-transparent btn-action', data: {toggle: "tooltip"} do
         %span.sr-only Edit
         = icon('pencil-square-o')
-      = link_to destroy_label_path(label), title: "Delete", class: 'btn btn-transparent btn-action remove-row', method: :delete, data: {confirm: label_deletion_confirm_text(label), toggle: "tooltip"} do
-        %span.sr-only Delete
-        = icon('trash-o')
+        %a.js-delete-project-label.btn.btn-transparent.btn-action.remove-row.has-tooltip{ title: _('Delete'),
+          data: { url: destroy_label_path(label),
+                  label_title: label.title,
+                  label_open_merge_requests_count: label.open_merge_requests_count,
+                  label_open_issues_count: label.open_issues_count,
+                  target: '#delete-label-modal',
+                  container: 'body',
+                  toggle: "modal" } }
+          = icon('trash-o')
