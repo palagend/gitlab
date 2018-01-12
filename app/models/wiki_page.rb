@@ -1,5 +1,6 @@
 class WikiPage
   PageChangedError = Class.new(StandardError)
+  PageRenameError = Class.new(StandardError)
 
   include ActiveModel::Validations
   include ActiveModel::Conversion
@@ -201,7 +202,7 @@ class WikiPage
   #                           See ProjectWiki::MARKUPS Hash for available formats.
   #        :message         - Optional commit message to set on the new version.
   #        :last_commit_sha - Optional last commit sha to validate the page unchanged.
-  #        :title           - The Title to replace existing title
+  #        :title           - The Title (including dir) to replace existing title
   #
   # Returns the String SHA1 of the newly created page
   # or False if the save was unsuccessful.
@@ -211,10 +212,15 @@ class WikiPage
       raise PageChangedError.new("You are attempting to update a page that has changed since you started editing it.")
     end
 
+    if full_title_changed?(attrs[:title]) && wiki.find_page(attrs[:title]).present?
+      raise PageRenameError.new("There is already a page with the same title in that path.")
+    end
+
     attrs.slice!(:content, :format, :message, :title)
     @attributes.merge!(attrs)
+
     page_details =
-      if title.present? && @page.title != title
+      if title.present? && full_title_changed?(title)
         title
       else
         @page.url_path
@@ -250,6 +256,14 @@ class WikiPage
 
   def id
     page.version.to_s
+  end
+
+  def full_title_changed?(title)
+    title.present? && full_title != title
+  end
+
+  def full_title
+    self.class.unhyphenize(@page.url_path)
   end
 
   private

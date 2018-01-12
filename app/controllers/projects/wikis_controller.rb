@@ -54,8 +54,8 @@ class Projects::WikisController < Projects::ApplicationController
     else
       render 'edit'
     end
-  rescue WikiPage::PageChangedError
-    @conflict = true
+  rescue WikiPage::PageChangedError, WikiPage::PageRenameError => e
+    @error = e
     render 'edit'
   end
 
@@ -115,7 +115,7 @@ class Projects::WikisController < Projects::ApplicationController
 
   def wiki_params
     params.require(:wiki).tap do |p|
-      p[:title] = File.join([p[:directory].presence, p[:title]].compact)
+      p[:title] = File.join([p.delete(:directory).presence, p[:title]].compact)
     end.permit(:title, :content, :format, :message, :last_commit_sha)
   end
 end
