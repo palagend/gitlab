@@ -69,6 +69,9 @@ gem 'net-ldap'
 
 # Git Wiki
 # Required manually in config/initializers/gollum.rb to control load order
+# Before updating this gem, check if
+# https://github.com/gollum/gollum-lib/pull/292 has been merged.
+# If it has, then remove the monkey patch for tree_entry in config/initializers/gollum.rb
 gem 'gollum-lib', '~> 4.2', require: false
 
 # Before updating this gem, check if

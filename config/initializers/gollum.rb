@@ -36,6 +36,7 @@ module Gollum
       end
     end
 
+    # Remove if https://github.com/gollum/gollum-lib/pull/292 has been merged
     def update_page(page, name, format, data, commit = {})
       name     = name.present? ? ::File.basename(name) : page.name
       format   ||= page.format
@@ -63,6 +64,7 @@ module Gollum
       multi_commit ? committer : committer.commit
     end
 
+    # Remove if https://github.com/gollum/gollum-lib/pull/292 has been merged
     def rename_page(page, rename, commit = {})
       return false if page.nil?
       return false if rename.nil? or rename.empty?
@@ -105,6 +107,7 @@ module Gollum
       multi_commit ? committer : committer.commit
     end
 
+    # Remove if https://github.com/gollum/gollum-lib/pull/292 has been merged
     def raw_data_in_commiter(committer, dir, filename)
       committer.tree.dig(*dir.split(::File::SEPARATOR), filename)
     end
