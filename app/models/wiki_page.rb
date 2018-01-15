@@ -77,7 +77,7 @@ class WikiPage
     if @attributes[:slug].present?
       @attributes[:slug]
     else
-      wiki.wiki.preview_slug(title, format)
+      wiki.wiki.preview_slug(full_title, format)
     end
   end
 
