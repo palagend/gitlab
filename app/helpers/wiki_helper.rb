@@ -22,12 +22,6 @@ module WikiHelper
       end
   end
 
-  def page_current_dir(wiki, page_slug, includes_filename: true)
-    dir = includes_filename ? wiki.page_title_and_dir(page_slug).pop : page_slug
-
-    WikiPage.unhyphenize(dir)
-  end
-
   def wiki_page_errors(error)
     return unless error
 

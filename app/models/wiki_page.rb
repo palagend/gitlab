@@ -47,6 +47,7 @@ class WikiPage
 
   validates :title, presence: true
   validates :content, presence: true
+  validates :directory, presence: true, allow_blank: true
 
   # The Gitlab ProjectWiki instance.
   attr_reader :wiki
@@ -101,9 +102,18 @@ class WikiPage
     @attributes[:content] ||= @page&.text_data
   end
 
+  # Sets the directory of this page.
+  def directory=(directory)
+    @attributes[:directory] = directory
+  end
+
   # The hierarchy of the directory this page is contained in.
   def directory
-    wiki.page_title_and_dir(slug).last
+    if @attributes[:directory]
+      CGI.unescape_html(self.class.unhyphenize(@attributes[:directory]))
+    else
+      wiki.page_title_and_dir(slug).last
+    end
   end
 
   # The processed/formatted content of this page.
@@ -189,8 +199,8 @@ class WikiPage
   def create(attrs = {})
     @attributes.merge!(attrs)
 
-    save(page_details: title) do
-      wiki.create_page(title, content, format, message)
+    save(page_details: full_title) do
+      wiki.create_page(full_title, content, format, message)
     end
   end
 
@@ -208,20 +218,23 @@ class WikiPage
   # or False if the save was unsuccessful.
   def update(attrs = {})
     last_commit_sha = attrs.delete(:last_commit_sha)
+
     if last_commit_sha && last_commit_sha != self.last_commit_sha
       raise PageChangedError.new("You are attempting to update a page that has changed since you started editing it.")
     end
 
-    if full_title_changed?(attrs[:title]) && wiki.find_page(attrs[:title]).present?
+    attrs.slice!(:content, :format, :message, :title, :directory)
+    @attributes.merge!(attrs)
+
+    new_full_title = full_title
+
+    if full_title_changed? && wiki.find_page(new_full_title).present?
       raise PageRenameError.new("There is already a page with the same title in that path.")
     end
 
-    attrs.slice!(:content, :format, :message, :title)
-    @attributes.merge!(attrs)
-
     page_details =
-      if title.present? && full_title_changed?(title)
-        title
+      if title.present?
+        new_full_title
       else
         @page.url_path
       end
@@ -232,7 +245,7 @@ class WikiPage
         content: content,
         format: format,
         message: attrs[:message],
-        title: title
+        title: new_full_title
       )
     end
   end
@@ -258,12 +271,12 @@ class WikiPage
     page.version.to_s
   end
 
-  def full_title_changed?(title)
-    title.present? && full_title != title
+  def full_title_changed?
+    self.class.unhyphenize(@page.url_path) != full_title
   end
 
   def full_title
-    self.class.unhyphenize(@page.url_path)
+    File.join(directory, title)
   end
 
   private
@@ -271,6 +284,7 @@ class WikiPage
   def set_attributes
     attributes[:slug] = @page.url_path
     attributes[:title] = @page.title
+    attributes[:directory] = wiki.page_title_and_dir(@page.path).last
     attributes[:format] = @page.format
   end
 

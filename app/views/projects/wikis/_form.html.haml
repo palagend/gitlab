@@ -9,10 +9,10 @@
 
   .form-group
     .col-sm-12= f.label :title, class: 'control-label-full-width'
-    .col-sm-12= f.text_field :title, class: 'form-control', value: File.basename(@page.title)
+    .col-sm-12= f.text_field :title, class: 'form-control', value: @page.title
   .form-group
     .col-sm-12= f.label :directory, class: 'control-label-full-width'
-    .col-sm-12= f.text_field :directory, class: 'form-control', value: page_current_dir(@page.wiki, @page.slug)
+    .col-sm-12= f.text_field :directory, class: 'form-control', value: @page.directory
   .form-group
     .col-sm-12= f.label :format, class: 'control-label-full-width'
     .col-sm-12
