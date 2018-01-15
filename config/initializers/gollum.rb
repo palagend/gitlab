@@ -38,12 +38,11 @@ module Gollum
 
     # Remove if https://github.com/gollum/gollum-lib/pull/292 has been merged
     def update_page(page, name, format, data, commit = {})
-      name     = name.present? ? ::File.basename(name) : page.name
-      format   ||= page.format
+      name = name.present? ? ::File.basename(name) : page.name
+      format ||= page.format
       dir      = ::File.dirname(page.path)
       dir      = '' if dir == '.'
-      filename = (rename = page.name != name) ?
-          Gollum::Page.cname(name) : page.filename_stripped
+      filename = (rename = page.name != name) ? Gollum::Page.cname(name) : page.filename_stripped
 
       multi_commit = !!commit[:committer]
       committer    = multi_commit ? commit[:committer] : Committer.new(self, commit)
@@ -67,7 +66,7 @@ module Gollum
     # Remove if https://github.com/gollum/gollum-lib/pull/292 has been merged
     def rename_page(page, rename, commit = {})
       return false if page.nil?
-      return false if rename.nil? or rename.empty?
+      return false if rename.nil? || rename.empty?
 
       (target_dir, target_name) = ::File.split(rename)
       (source_dir, source_name) = ::File.split(page.path)
@@ -79,7 +78,7 @@ module Gollum
       target_dir                = target_dir.gsub(/^\//, '')
 
       # if the rename is a NOOP, abort
-      if source_dir == target_dir and source_name == target_name
+      if source_dir == target_dir && source_name == target_name
         return false
       end
 
@@ -92,8 +91,8 @@ module Gollum
       # Therefore, we should ask first to the current committer tree to see if
       # there is any updated change.
       raw_data = raw_data_in_commiter(committer, source_dir, page.filename) ||
-                 raw_data_in_commiter(committer, source_dir, "#{target_name}.#{Page.format_to_ext(page.format)}") ||
-                 page.raw_data
+        raw_data_in_commiter(committer, source_dir, "#{target_name}.#{Page.format_to_ext(page.format)}") ||
+        page.raw_data
 
       committer.delete(page.path)
       committer.add_to_index(target_dir, target_name, page.format, raw_data)
