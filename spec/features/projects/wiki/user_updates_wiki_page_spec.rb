@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'User updates wiki page' do
+describe 'User updates wiki page', skip_gitaly_mock: true do
   let(:user) { create(:user) }
 
   before do
@@ -143,6 +143,7 @@ describe 'User updates wiki page' do
         expect(page).to have_field('wiki[message]', with: 'Update home')
 
         fill_in(:wiki_content, with: 'My awesome wiki!')
+
         click_button('Save changes')
 
         expect(page).to have_content('Home')

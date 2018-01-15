@@ -112,7 +112,7 @@ class WikiPage
     if @attributes[:directory]
       CGI.unescape_html(self.class.unhyphenize(@attributes[:directory]))
     else
-      wiki.page_title_and_dir(slug).last
+      ''
     end
   end
 
@@ -272,11 +272,11 @@ class WikiPage
   end
 
   def full_title_changed?
-    self.class.unhyphenize(@page.url_path) != full_title
+    title.present? && self.class.unhyphenize(@page.url_path) != full_title
   end
 
   def full_title
-    File.join(directory, title)
+    File.join([directory.presence, title].compact)
   end
 
   private
@@ -284,7 +284,7 @@ class WikiPage
   def set_attributes
     attributes[:slug] = @page.url_path
     attributes[:title] = @page.title
-    attributes[:directory] = wiki.page_title_and_dir(@page.path).last
+    attributes[:directory] = wiki.page_title_and_dir(@page.path)&.last.to_s
     attributes[:format] = @page.format
   end
 
