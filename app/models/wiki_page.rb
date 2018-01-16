@@ -233,7 +233,7 @@ class WikiPage
     end
 
     page_details =
-      if title.present?
+      if full_title_changed?
         full_title
       else
         @page.url_path
