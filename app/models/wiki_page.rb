@@ -218,6 +218,7 @@ class WikiPage
   # or False if the save was unsuccessful.
   def update(attrs = {})
     last_commit_sha = attrs.delete(:last_commit_sha)
+    old_path = @attributes.slice(:title, :directory)
 
     if last_commit_sha && last_commit_sha != self.last_commit_sha
       raise PageChangedError.new("You are attempting to update a page that has changed since you started editing it.")
@@ -226,15 +227,14 @@ class WikiPage
     attrs.slice!(:content, :format, :message, :title, :directory)
     @attributes.merge!(attrs)
 
-    new_full_title = full_title
-
-    if full_title_changed? && wiki.find_page(new_full_title).present?
+    if full_title_changed? && wiki.find_page(full_title).present?
+      @attributes.merge!(old_path)
       raise PageRenameError.new("There is already a page with the same title in that path.")
     end
 
     page_details =
       if title.present?
-        new_full_title
+        full_title
       else
         @page.url_path
       end
@@ -245,7 +245,7 @@ class WikiPage
         content: content,
         format: format,
         message: attrs[:message],
-        title: new_full_title
+        title: full_title
       )
     end
   end

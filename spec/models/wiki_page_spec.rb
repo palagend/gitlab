@@ -188,14 +188,29 @@ describe WikiPage do
     end
   end
 
-  describe "#update" do
+  describe '#create', :skip_gitaly_mock do
+    context 'with valid attributes' do
+      it 'raises and error if a page with the same path already exists' do
+        create_page('New Page', 'content')
+        create_page('foo/bar', 'content')
+        expect { create_page('New Page', 'other content') }.to raise_error Gitlab::Git::Wiki::DuplicatePageError
+        expect { create_page('foo/bar', 'other content') }.to raise_error Gitlab::Git::Wiki::DuplicatePageError
+
+        destroy_page('New Page')
+        destroy_page('bar', 'foo')
+      end
+    end
+  end
+
+  # Remove skip_gitaly_mock flag when gitaly_update_page implements moving pages
+  describe "#update", :skip_gitaly_mock do
     before do
       create_page("Update", "content")
       @page = wiki.find_page("Update")
     end
 
     after do
-      destroy_page(@page.title)
+      destroy_page(@page.title, @page.directory)
     end
 
     context "with valid attributes" do
@@ -231,6 +246,64 @@ describe WikiPage do
     context 'with different last commit sha' do
       it 'raises exception' do
         expect { @page.update(content: 'more content', last_commit_sha: 'xxx') }.to raise_error(WikiPage::PageChangedError)
+      end
+    end
+
+    context 'when renaming a page' do
+      it 'raises and error if the page already exists' do
+        create_page('Existing Page', 'content')
+
+        expect { @page.update(title: 'Existing Page', content: 'new_content') }.to raise_error(WikiPage::PageRenameError)
+        expect(@page.title).to eq 'Update'
+        expect(@page.content).to eq 'new_content'
+
+        destroy_page('Existing Page')
+      end
+
+      it 'updates the content and rename the file' do
+        new_title = 'Renamed Page'
+        new_content = 'updated content'
+
+        expect(@page.update(title: new_title, content: new_content)).to be_truthy
+
+        @page = wiki.find_page(new_title)
+
+        expect(@page).not_to be_nil
+        expect(@page.content).to eq new_content
+      end
+    end
+
+    context 'when moving a page' do
+      it 'raises and error if the page already exists' do
+        create_page('foo/Existing Page', 'content')
+
+        expect { @page.update(title: 'Existing Page', directory: 'foo', content: 'new_content') }.to raise_error(WikiPage::PageRenameError)
+        expect(@page.title).to eq 'Update'
+        expect(@page.content).to eq 'new_content'
+
+        destroy_page('Existing Page', 'foo')
+      end
+
+      it 'updates the content and moves the file' do
+        new_title = 'Other Page'
+        new_directory = 'foo'
+        new_content = 'new_content'
+
+        expect(@page.update(title: new_title, directory: new_directory, content: new_content)).to be_truthy
+
+        page = wiki.find_page(File.join(new_directory, new_title))
+
+        expect(page).not_to be_nil
+        expect(page.content).to eq new_content
+      end
+    end
+
+    context "with invalid attributes" do
+      it 'aborts update if title blank' do
+        expect(@page.update(title: '', content: 'new_content')).to be_falsey
+        expect(@page.content).to eq 'new_content'
+
+        @page.title = 'Update'
       end
     end
   end
@@ -411,8 +484,8 @@ describe WikiPage do
     wiki.wiki.write_page(name, :markdown, content, commit_details)
   end
 
-  def destroy_page(title)
-    page = wiki.wiki.page(title: title)
+  def destroy_page(title, dir = '')
+    page = wiki.wiki.page(title: title, dir: dir)
     wiki.delete_page(page, "test commit")
   end
 
