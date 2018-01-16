@@ -69,7 +69,7 @@ module Gitlab
       end
 
       def page(title:, version: nil, dir: nil)
-        @repository.gitaly_migrate(:wiki_find_page) do |is_enabled|
+        @repository.gitaly_migrate(:wiki_find_page, status: Gitlab::GitalyClient::MigrationStatus::DISABLED) do |is_enabled|
           if is_enabled
             gitaly_find_page(title: title, version: version, dir: dir)
           else
