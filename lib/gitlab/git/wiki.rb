@@ -26,7 +26,7 @@ module Gitlab
       end
 
       def write_page(name, format, content, commit_details)
-        @repository.gitaly_migrate(:wiki_write_page) do |is_enabled|
+        @repository.gitaly_migrate(:wiki_write_page, status: Gitlab::GitalyClient::MigrationStatus::DISABLED) do |is_enabled|
           if is_enabled
             gitaly_write_page(name, format, content, commit_details)
             gollum_wiki.clear_cache
