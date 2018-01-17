@@ -227,12 +227,16 @@ class WikiPage
     attrs.slice!(:content, :format, :message, :title, :directory)
     @attributes.merge!(attrs)
 
-    if (full_title_changed = full_title_changed?) && wiki.find_page(full_title).present?
-      @attributes.merge!(old_path)
-      raise PageRenameError.new("There is already a page with the same title in that path.")
-    end
+    if full_title_changed?
+      page_details = full_title
 
-    page_details = full_title_changed ? full_title : @page.url_path
+      if wiki.find_page(page_details).present?
+        @attributes.merge!(old_path)
+        raise PageRenameError.new("There is already a page with the same title in that path.")
+      end
+    else
+      page_details = @page.url_path
+    end
 
     save(page_details: page_details) do
       wiki.update_page(
