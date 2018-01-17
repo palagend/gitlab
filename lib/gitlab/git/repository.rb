@@ -1119,10 +1119,14 @@ module Gitlab
       end
 
       def write_ref(ref_path, ref, old_ref: nil, shell: true)
-        if shell
-          shell_write_ref(ref_path, ref, old_ref)
-        else
-          rugged_write_ref(ref_path, ref)
+        ref_path = "refs/heads/#{ref_path}" unless ref_path.start_with?("refs/")
+
+        gitaly_migrate(:write_ref) do |is_enabled|
+          if is_enabled
+            gitaly_write_ref(ref_path, ref, old_ref: old_ref, shell: shell)
+          else
+            local_write_ref(ref_path, ref, old_ref: old_ref, shell: shell)
+          end
         end
       end
 
@@ -1382,6 +1386,18 @@ module Gitlab
       end
 
       private
+
+      def gitaly_write_ref(ref_path, ref, old_ref: nil, shell: true)
+        gitaly_repository_client.write_ref(ref_path, ref, old_ref, shell)
+      end
+
+      def local_write_ref(ref_path, ref, old_ref: nil, shell: true)
+        if shell
+          shell_write_ref(ref_path, ref, old_ref)
+        else
+          rugged_write_ref(ref_path, ref)
+        end
+      end
 
       def shell_write_ref(ref_path, ref, old_ref)
         raise ArgumentError, "invalid ref_path #{ref_path.inspect}" if ref_path.include?(' ')
