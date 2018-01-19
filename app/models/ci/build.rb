@@ -40,12 +40,39 @@ module Ci
 
     scope :unstarted, ->() { where(runner_id: nil) }
     scope :ignore_failures, ->() { where(allow_failure: false) }
+
+    # This convoluted mess is because we need to handle two cases of
+    # artifact files during the migration. And a simple OR clause
+    # makes it impossible to optimize.
+
+    # Instead we want to use UNION ALL and do two carefully
+    # constructed disjoint queries. But Rails cannot handle UNION or
+    # UNION ALL queries so we do the query in a subquery and wrap it
+    # in an otherwise redundant WHERE IN query (IN is fine for
+    # non-null columns).
+
+    # This should all be ripped out when the migration is finished and
+    # replaced with just the new storage to avoid the extra work.
+
     scope :with_artifacts, ->() do
-      where('(artifacts_file IS NOT NULL AND artifacts_file <> ?) OR EXISTS (?)',
-        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id'))
+      old = Ci::Build.select(:id).where('artifacts_file <> ?', '')
+      new = Ci::Build.select(:id).where('(artifacts_file is null or artifacts_file = ?) AND exists (?)',
+                                        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id'))
+      where('id in (? union all ?)', old, new)
     end
-    scope :with_artifacts_not_expired, ->() { with_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.now) }
-    scope :with_expired_artifacts, ->() { with_artifacts.where('artifacts_expire_at < ?', Time.now) }
+    scope :with_artifacts_not_expired, ->() do
+      old = Ci::Build.select(:id).where('artifacts_file <> ? AND (artifacts_expire_at IS NULL OR artifacts_expire_at > ?)', '', Time.now)
+      new = Ci::Build.select(:id).where('(artifacts_file is null OR artifacts_file = ?) AND exists (?)',
+                                        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id and (expire_at IS NULL OR expire_at > ?)', Time.now))
+      where('id in (? union all ?)', old, new)
+    end
+    scope :with_expired_artifacts, ->() do
+      old = Ci::Build.select(:id).where('artifacts_file <> ? AND artifacts_expire_at < ?', '', Time.now)
+      new = Ci::Build.select(:id).where('(artifacts_file is null OR artifacts_file = ?) AND exists (?)',
+                                        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id and expire_at < ?', Time.now))
+      where('id in (? union all ?)', old, new)
+    end
+
     scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }
     scope :manual_actions, ->() { where(when: :manual, status: COMPLETED_STATUSES + [:manual]) }
     scope :ref_protected, -> { where(protected: true) }
