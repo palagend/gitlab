@@ -97,19 +97,10 @@ class GroupsController < Groups::ApplicationController
   def transfer
     return access_denied! unless can?(current_user, :admin_group, @group)
 
-    parent_group = Group.find_by(id: params[:new_parent_group_id])
+    parent_group = Group.find(params[:new_parent_group_id])
 
-    service = ::Groups::ConvertToSubgroupService.new(@group, current_user)
+    service = ::Groups::TransferService.new(@group, current_user)
     service.execute(parent_group)
-
-    flash[:alert] = service.error if service.error.present?
-  end
-
-  def convert_to_root
-    return access_denied! unless can?(current_user, :admin_group, @group)
-
-    service = ::Groups::ConvertToRootService.new(@group, current_user)
-    service.execute
 
     flash[:alert] = service.error if service.error.present?
   end

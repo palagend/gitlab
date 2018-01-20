@@ -57,7 +57,6 @@
       .form-actions
         = button_to 'Remove group', '#', class: "btn btn-remove js-confirm-danger", data: { "confirm-danger-message" => remove_group_message(@group) }
 
-
 - if supports_nested_groups?
   .panel.panel-warning
     .panel-heading Transfer group
@@ -67,17 +66,12 @@
           = label_tag :new_parent_group_id, nil, class: 'label-light' do
             %span Parent Group
           .form-group
-            = select_tag :new_parent_group_id, parent_group_options, include_blank: 'Select', class: 'select2'
+            = select_tag :new_parent_group_id, parent_group_options, include_blank: 'No parent group', class: 'select2'
           %ul
             %li Be careful. Changing a group's parent can have unintended side effects.
-            %li You can only transfer the group to a group you owned.
+            %li You can only transfer the group to a group you manage.
             %li You will need to update your local repositories to point to the new location.
             %li Group and project visibility levels will be changed to match the new parent group's values.
-            %li Permissions of the members of the group will not be transferred. You will need to change them manually.
         = f.submit 'Transfer Group', class: "btn btn-warning"
-        - if group_can_become_root?(@group)
-          or
-          = link_to 'Convert to root group', convert_to_root_group_path(@group), remote: true, method: :put, class: "btn btn-warning"
-
 
 = render 'shared/confirm_modal', phrase: @group.path

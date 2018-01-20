@@ -97,10 +97,6 @@ module GroupsHelper
     Group.supports_nested_groups?
   end
 
-  def group_can_become_root?(group)
-    group.has_parent? && can?(current_user, :create_group)
-  end
-
   private
 
   def group_title_link(group, hidable: false, show_avatar: false, for_dropdown: false)

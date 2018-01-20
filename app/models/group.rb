@@ -287,7 +287,12 @@ class Group < Namespace
   def full_path_was
     return path_was unless has_parent?
 
-    "#{parent.full_path}/#{path_was}"
+    if parent_id_was
+      previous_parent = Group.find_by(id: parent_id_was)
+      previous_parent.full_path + '/' + path_was
+    else
+      "#{parent.full_path}/#{path_was}"
+    end
   end
 
   def group_member(user)
@@ -300,10 +305,6 @@ class Group < Namespace
 
   def hashed_storage?(_feature)
     false
-  end
-
-  def has_parent?
-    !parent_id.nil?
   end
 
   private

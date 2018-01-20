@@ -480,7 +480,7 @@ describe GroupsController do
       sign_in(user)
     end
 
-    context "When the current user has valid policies" do
+    context "when the current user has valid policies" do
       before do
         create(:group_member, :owner, group: new_parent_group, user: user)
 

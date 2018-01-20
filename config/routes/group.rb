@@ -15,7 +15,6 @@ constraints(GroupUrlConstrainer.new) do
       get :projects, as: :projects_group
       get :activity, as: :activity_group
       put :transfer, as: :transfer_group
-      put :convert_to_root, as: :convert_to_root_group
     end
 
     get '/', action: :show, as: :group_canonical
