@@ -15,28 +15,28 @@ export default {
     <div class="time-tracking-help-state">
       <div class="time-tracking-info">
         <h4>
-          Track time with quick actions
+          {{ __('Track time with quick actions') }}
         </h4>
         <p>
-          Quick actions can be used in the issues description and comment boxes.
+          {{ __('Quick actions can be used in the issues description and comment boxes.') }}
         </p>
         <p>
           <code>
-            /estimate
+            {{ __('/estimate') }}
           </code>
-          will update the estimated time with the latest command.
+          {{ __('will update the estimated time with the latest command.') }}
         </p>
         <p>
           <code>
-            /spend
+            {{ __('/spend') }}
           </code>
-          will update the sum of the time spent.
+          {{ __('will update the sum of the time spent.') }}
         </p>
         <a
           class="btn btn-default learn-more-button"
           :href="href"
         >
-          Learn more
+          {{ __('Learn more') }}
         </a>
       </div>
     </div>
