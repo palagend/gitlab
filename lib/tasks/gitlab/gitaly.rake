@@ -16,7 +16,10 @@ namespace :gitlab do
 
       checkout_or_clone_version(version: version, repo: args.repo, target_dir: args.dir)
 
-      command = %w[/usr/bin/env -u RUBYOPT -u BUNDLE_GEMFILE]
+      command = %W[/usr/bin/env
+                   -u RUBYOPT
+                   -u BUNDLE_GEMFILE
+                   BUNDLE_PATH=#{Bundler.bundle_path}]
 
       _, status = Gitlab::Popen.popen(%w[which gmake])
       command << (status.zero? ? 'gmake' : 'make')

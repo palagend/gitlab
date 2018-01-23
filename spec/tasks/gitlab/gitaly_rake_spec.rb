@@ -41,7 +41,12 @@ describe 'gitlab:gitaly namespace rake task' do
     end
 
     describe 'gmake/make' do
-      let(:command_preamble) { %w[/usr/bin/env -u RUBYOPT -u BUNDLE_GEMFILE] }
+      let(:command_preamble) do
+        %W[/usr/bin/env
+           -u RUBYOPT
+           -u BUNDLE_GEMFILE
+           BUNDLE_PATH=#{Bundler.bundle_path}]
+      end
 
       before do
         stub_env('CI', false)
