@@ -53,23 +53,27 @@ module Ci
 
     # This should all be ripped out when the migration is finished and
     # replaced with just the new storage to avoid the extra work.
+    # The issue for migrating the data: https://gitlab.com/gitlab-org/gitlab-ee/issues/4172
 
     scope :with_artifacts, ->() do
       old = Ci::Build.select(:id).where('artifacts_file <> ?', '')
-      new = Ci::Build.select(:id).where('(artifacts_file is null or artifacts_file = ?) AND exists (?)',
-                                        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id'))
+      new = Ci::Build.select(:id).where(
+        '(artifacts_file is null or artifacts_file = ?) AND exists (?)',
+        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id'))
       where('id in (? union all ?)', old, new)
     end
     scope :with_artifacts_not_expired, ->() do
       old = Ci::Build.select(:id).where('artifacts_file <> ? AND (artifacts_expire_at IS NULL OR artifacts_expire_at > ?)', '', Time.now)
-      new = Ci::Build.select(:id).where('(artifacts_file is null OR artifacts_file = ?) AND exists (?)',
-                                        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id and (expire_at IS NULL OR expire_at > ?)', Time.now))
+      new = Ci::Build.select(:id).where(
+        '(artifacts_file is null OR artifacts_file = ?) AND exists (?)',
+        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id and (expire_at IS NULL OR expire_at > ?)', Time.now))
       where('id in (? union all ?)', old, new)
     end
     scope :with_expired_artifacts, ->() do
       old = Ci::Build.select(:id).where('artifacts_file <> ? AND artifacts_expire_at < ?', '', Time.now)
-      new = Ci::Build.select(:id).where('(artifacts_file is null OR artifacts_file = ?) AND exists (?)',
-                                        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id and expire_at < ?', Time.now))
+      new = Ci::Build.select(:id).where(
+        '(artifacts_file is null OR artifacts_file = ?) AND exists (?)',
+        '', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id and expire_at < ?', Time.now))
       where('id in (? union all ?)', old, new)
     end
 
