@@ -87,8 +87,18 @@ class GroupProjectsFinder < ProjectsFinder
     options.fetch(:only_shared, false)
   end
 
+  # subgroups are supported only for owned projects not for shared
+  def include_subgroups?
+    options.fetch(:include_subgroups, false)
+  end
+
   def owned_projects
-    group.projects
+    if include_subgroups?
+      hierarchy_for_parent = Gitlab::GroupHierarchy.new(Group.where(id: group.id))
+      Project.where(namespace_id: hierarchy_for_parent.base_and_descendants.select(:id))
+    else
+      group.projects
+    end
   end
 
   def shared_projects
