@@ -44,11 +44,11 @@ describe Gitlab::Saml::User do
 
       context 'external groups' do
         context 'are defined' do
-          it 'marks the user as external' do
+          it 'does not mark as external' do
             stub_saml_group_config(%w(Freelancers))
             saml_user.save
             expect(gl_user).to be_valid
-            expect(gl_user.external).to be_truthy
+            expect(gl_user.external).to be_falsey
           end
         end
 
