@@ -445,7 +445,7 @@ class AwardsHandler {
       axios.post(awardUrl, {
         name: emoji,
       })
-      .then((data) => {
+      .then(({ data }) => {
         if (data.ok) {
           callback();
         }
