@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import _ from 'underscore';
 import Cookies from 'js-cookie';
-import { s__ } from '~/locale';
+import { s__ } from './locale';
 import { isInIssuePage, updateTooltipTitle } from './lib/utils/common_utils';
 import flash from './flash';
 import axios from './lib/utils/axios_utils';
