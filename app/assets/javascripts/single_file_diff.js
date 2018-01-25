@@ -1,9 +1,8 @@
 /* eslint-disable func-names, prefer-arrow-callback, space-before-function-paren, no-var, prefer-rest-params, wrap-iife, one-var, one-var-declaration-per-line, consistent-return, no-param-reassign, max-len */
 
-import { s__ } from '~/locale';
+import { s__ } from './locale';
 import axios from './lib/utils/axios_utils';
 import flash from './flash';
-
 import FilesCommentButton from './files_comment_button';
 import imageDiffHelper from './image_diff/helpers/index';
 import syntaxHighlight from './syntax_highlight';
