@@ -5,20 +5,15 @@ class Projects::GitHttpController < Projects::GitHttpClientController
 
   rescue_from Gitlab::GitAccess::UnauthorizedError, with: :render_403
   rescue_from Gitlab::GitAccess::NotFoundError, with: :render_404
+  rescue_from Gitlab::GitAccess::ProjectCreationError, with: :render_404
 
   # GET /foo/bar.git/info/refs?service=git-upload-pack (git pull)
   # GET /foo/bar.git/info/refs?service=git-receive-pack (git push)
   def info_refs
     log_user_activity if upload_pack?
 
-    if user && project.blank? && receive_pack?
-      @project = ::Projects::CreateService.new(user, project_params).execute
-
-      if @project.saved?
-        Gitlab::Checks::NewProject.new(user, @project, 'http').add_new_project_message
-      else
-        raise Gitlab::GitAccess::NotFoundError, 'Could not create project'
-      end
+    if project.blank?
+      @project = ::Projects::CreateFromPushService.new(user, params[:project_id], namespace, git_command, 'http').execute
     end
 
     render_ok
@@ -44,10 +39,6 @@ class Projects::GitHttpController < Projects::GitHttpClientController
 
   def upload_pack?
     git_command == 'git-upload-pack'
-  end
-
-  def receive_pack?
-    git_command == 'git-receive-pack'
   end
 
   def git_command
@@ -88,15 +79,6 @@ class Projects::GitHttpController < Projects::GitHttpClientController
 
   def access_klass
     @access_klass ||= wiki? ? Gitlab::GitAccessWiki : Gitlab::GitAccess
-  end
-
-  def project_params
-    {
-        description: "",
-        path: Project.parse_project_id(params[:project_id]),
-        namespace_id: namespace&.id,
-        visibility_level: Gitlab::VisibilityLevel::PRIVATE.to_s
-    }
   end
 
   def namespace
