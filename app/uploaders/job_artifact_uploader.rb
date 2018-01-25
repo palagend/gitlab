@@ -28,7 +28,9 @@ class JobArtifactUploader < GitlabUploader
   end
 
   def open
-    File.open(path, "rb")
+    raise 'Only File System is supported' unless file_storage?
+
+    File.open(path) if path
   end
 
   private
