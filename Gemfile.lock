@@ -1,3 +1,12 @@
+GIT
+  remote: https://gitlab.com/gitlab-org/gitaly-proto.git
+  revision: 0bf259bc1f3cca9cc74b52374a982067611854c5
+  ref: add-get-formatted-data-rpc
+  specs:
+    gitaly-proto (0.81.0)
+      google-protobuf (~> 3.1)
+      grpc (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -285,9 +294,6 @@ GEM
       po_to_json (>= 1.0.0)
       rails (>= 3.2.0)
     gherkin-ruby (0.3.2)
-    gitaly-proto (0.76.0)
-      google-protobuf (~> 3.1)
-      grpc (~> 1.0)
     github-linguist (4.7.6)
       charlock_holmes (~> 0.7.3)
       escape_utils (~> 1.1.0)
@@ -1056,7 +1062,7 @@ DEPENDENCIES
   gettext (~> 3.2.2)
   gettext_i18n_rails (~> 1.8.0)
   gettext_i18n_rails_js (~> 1.2.0)
-  gitaly-proto (~> 0.76.0)
+  gitaly-proto!
   github-linguist (~> 4.7.0)
   gitlab-flowdock-git-hook (~> 1.0.1)
   gitlab-markup (~> 1.6.2)
