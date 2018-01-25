@@ -6,7 +6,6 @@ FactoryBot.define do
       attrs do
         {
           title: 'Title',
-          directory: '',
           content: 'Content for wiki page',
           format: 'markdown'
         }

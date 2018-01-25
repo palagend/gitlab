@@ -119,6 +119,8 @@ class ProjectWiki
   end
 
   def delete_page(page, message = nil)
+    return unless page
+
     wiki.delete_page(page.path, commit_details(:deleted, message, page.title))
 
     update_project_activity

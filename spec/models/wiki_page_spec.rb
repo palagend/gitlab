@@ -199,6 +199,14 @@ describe WikiPage do
         destroy_page('New Page')
         destroy_page('bar', 'foo')
       end
+
+      it 'if the title is preceded by a / it is removed' do
+        create_page('/New Page', 'content')
+
+        expect(wiki.find_page('New Page')).not_to be_nil
+
+        destroy_page('New Page')
+      end
     end
   end
 
@@ -277,7 +285,7 @@ describe WikiPage do
       it 'raises and error if the page already exists' do
         create_page('foo/Existing Page', 'content')
 
-        expect { @page.update(title: 'Existing Page', directory: 'foo', content: 'new_content') }.to raise_error(WikiPage::PageRenameError)
+        expect { @page.update(title: 'foo/Existing Page', content: 'new_content') }.to raise_error(WikiPage::PageRenameError)
         expect(@page.title).to eq 'Update'
         expect(@page.content).to eq 'new_content'
 
@@ -285,16 +293,44 @@ describe WikiPage do
       end
 
       it 'updates the content and moves the file' do
-        new_title = 'Other Page'
-        new_directory = 'foo'
+        new_title = 'foo/Other Page'
         new_content = 'new_content'
 
-        expect(@page.update(title: new_title, directory: new_directory, content: new_content)).to be_truthy
+        expect(@page.update(title: new_title, content: new_content)).to be_truthy
 
-        page = wiki.find_page(File.join(new_directory, new_title))
+        page = wiki.find_page(new_title)
 
         expect(page).not_to be_nil
         expect(page.content).to eq new_content
+      end
+
+      context 'in subdir' do
+        before do
+          create_page('foo/Existing Page', 'content')
+          @page = wiki.find_page('foo/Existing Page')
+        end
+
+        it 'moves the page to the root folder if the title is preceded by /' do
+          expect(@page.slug).to eq 'foo/Existing-Page'
+          expect(@page.update(title: '/Existing Page', content: 'new_content')).to be_truthy
+          expect(@page.slug).to eq 'Existing-Page'
+        end
+
+        it 'does nothing if it has the same title' do
+          original_path = @page.slug
+
+          expect(@page.update(title: 'Existing Page', content: 'new_content')).to be_truthy
+          expect(@page.slug).to eq original_path
+        end
+      end
+
+      context 'in root dir' do
+        it 'does nothing if the title is preceded by /' do
+          original_path = @page.slug
+
+          expect(@page.update(title: '/Update', content: 'new_content')).to be_truthy
+          expect(@page.slug).to eq original_path
+        end
       end
     end
 
@@ -302,6 +338,9 @@ describe WikiPage do
       it 'aborts update if title blank' do
         expect(@page.update(title: '', content: 'new_content')).to be_falsey
         expect(@page.content).to eq 'new_content'
+
+        page = wiki.find_page('Update')
+        expect(page.content).to eq 'content'
 
         @page.title = 'Update'
       end

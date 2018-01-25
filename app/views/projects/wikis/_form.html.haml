@@ -9,10 +9,11 @@
 
   .form-group
     .col-sm-12= f.label :title, class: 'control-label-full-width'
-    .col-sm-12= f.text_field :title, class: 'form-control', value: @page.title
-  .form-group
-    .col-sm-12= f.label :directory, class: 'control-label-full-width'
-    .col-sm-12= f.text_field :directory, class: 'form-control', value: @page.directory
+    .col-sm-12
+      = f.text_field :title, class: 'form-control', value: @page.title
+      %span.edit-wiki-page-slug-tip
+        = icon('lightbulb-o')
+        = s_("WikiEditPageTip|Tip: You can move a page to the root folder by adding '/' at the beginning of the page title.")
   .form-group
     .col-sm-12= f.label :format, class: 'control-label-full-width'
     .col-sm-12

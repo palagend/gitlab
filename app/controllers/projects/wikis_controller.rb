@@ -30,7 +30,7 @@ class Projects::WikisController < Projects::ApplicationController
       return render('empty') unless can?(current_user, :create_wiki, @project)
 
       @page = WikiPage.new(@project_wiki)
-      @page.title, @page.directory = @project_wiki.page_title_and_dir(params[:id])
+      @page.title = params[:id]
 
       render 'edit'
     end
@@ -114,6 +114,6 @@ class Projects::WikisController < Projects::ApplicationController
   end
 
   def wiki_params
-    params.require(:wiki).permit(:title, :content, :format, :message, :last_commit_sha, :directory)
+    params.require(:wiki).permit(:title, :content, :format, :message, :last_commit_sha)
   end
 end
