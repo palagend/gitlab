@@ -265,24 +265,30 @@ class WikiPage
   private
 
   # Process and format the title based on the user input.
-  # It also squishes all the filename
   def process_title(title)
     return if title.blank?
 
-    title = title.split('/').map(&:squish).join('/')
+    title = squish_whole_title(title)
 
     if @page.present?
       case File.dirname(title)
       when '/'
         title[1..-1]
       when '.'
-        File.join([wiki.page_title_and_dir(@page.url_path)&.last, title].compact)
+        current_dir = wiki.page_title_and_dir(@page.url_path)&.last.presence
+        File.join([current_dir, title].compact)
       else
         title
       end
     else
       title
     end
+  end
+
+  # It also squishes all the filename
+  # i.e: '   foo   /  bar  / page_name' => 'foo/bar/page_name'
+  def squish_whole_title(title)
+    File.join(title.split(File::SEPARATOR).map(&:squish).map {|x| x == '' ? File::SEPARATOR : x})
   end
 
   # Updates the current @attributes hash by merging a hash of params
