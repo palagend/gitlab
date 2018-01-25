@@ -2,7 +2,7 @@
 import _ from 'underscore';
 import Cookies from 'js-cookie';
 import { isInIssuePage, updateTooltipTitle } from './lib/utils/common_utils';
-import Flash from './flash';
+import flash from './flash';
 import axios from './lib/utils/axios_utils';
 
 const animationEndEventString = 'animationend webkitAnimationEnd MSAnimationEnd oAnimationEnd';
@@ -450,7 +450,7 @@ class AwardsHandler {
           callback();
         }
       })
-      .catch(() => new Flash('Something went wrong on our end.'));
+      .catch(() => flash('Something went wrong on our end.'));
     }
   }
 
