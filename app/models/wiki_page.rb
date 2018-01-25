@@ -268,7 +268,7 @@ class WikiPage
   def process_title(title)
     return if title.blank?
 
-    title = squish_whole_title(title)
+    title = deep_title_squish(title)
 
     if @page.present?
       case File.dirname(title)
@@ -287,7 +287,7 @@ class WikiPage
 
   # It also squishes all the filename
   # i.e: '   foo   /  bar  / page_name' => 'foo/bar/page_name'
-  def squish_whole_title(title)
+  def deep_title_squish(title)
     File.join(title.split(File::SEPARATOR).map(&:squish).map {|x| x == '' ? File::SEPARATOR : x})
   end
 
