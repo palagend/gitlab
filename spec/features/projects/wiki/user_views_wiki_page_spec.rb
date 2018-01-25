@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 # Remove skip_gitaly_mock flag when gitaly_update_page implements moving pages
-describe 'User views a wiki page', skip_gitaly_mock: true do
+describe 'User views a wiki page', :skip_gitaly_mock do
   let(:user) { create(:user) }
   let(:project) { create(:project, namespace: user.namespace) }
   let(:wiki_page) do
