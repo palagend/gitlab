@@ -1,3 +1,5 @@
+import axios from './lib/utils/axios_utils';
+
 class ImporterStatus {
   constructor(jobsUrl, importUrl) {
     this.jobsUrl = jobsUrl;
@@ -24,12 +26,12 @@ class ImporterStatus {
         }
         $btn.disable().addClass('is-loading');
 
-        return $.post(this.importUrl, {
+        axios.post(this.importUrl, {
           repo_id: id,
           target_namespace: targetNamespace,
           new_name: newName,
         }, {
-          dataType: 'script',
+          responseType: 'json',
         });
       });
 
